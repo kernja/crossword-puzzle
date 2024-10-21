@@ -13,3 +13,5 @@ Todo:
 * Allow users to fill out puzzle
 * Validate answers
 * Implement virtual keyboard for mobile users
+
+The generator alternates between placing words horizontally or vertically on the puzzle. Once a word is placed (e.g., horizontally), each letter in the word is iterated through to determine if additional words can be placed. If so, an additional word is placed (e.g., vertically) and the process repeats itself.
