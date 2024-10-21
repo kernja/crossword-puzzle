@@ -1,0 +1,70 @@
+body { text-align: center;}
+.column-playfield {
+    text-align: left;
+    display: inline-block;
+    width: 40%;
+}
+.column-hints {
+    text-align: left;
+    display: inline-block;
+    width: 15%;
+}
+
+.crossword
+{
+    line-height: .95em;
+    user-select: none;
+}
+.crossword .square
+{
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    font-size: 1.6em;
+    line-height: 1.1em;
+    border: 1px solid black;
+    position: relative;
+    text-align: center;
+}
+
+.crossword .square.active
+{
+   background-color: yellow;
+}
+
+.crossword .square.empty
+{
+    background: black;
+}
+
+.crossword .square .number {
+    position: absolute; top: .2em; left: .2em;font-size: .5em;line-height: .7em;
+}
+
+@media (max-width: 991px) and (orientation: portrait) {
+    .crossword {
+        line-height: .95em;
+    }
+
+    .crossword .square
+    {
+        width: 1em;
+        height: 1em;
+        font-size: 5.9vw;
+        line-height: .95em;
+    }
+}
+
+@media (max-width: 991px) and (orientation: landscape) {
+    .crossword {
+        line-height: 1em;
+    }
+    .crossword .square
+    {
+        width: 1em;
+        height: 1em;
+        font-size: 4vh;
+        line-height: .95em;
+    }
+}
+
