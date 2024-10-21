@@ -85,7 +85,7 @@ function generateEmptyGameObject()
 
     //determines if a space at x/y location contains a letter, and more important
     //if it matches the letter being passed in as a poential intersection
-    go.isLocationOverlapping = function(x, y, orientation, letter = "")
+    go.isLocationOverlapping = function(x, y, letter = "")
     {
         if (this.grid[x][y].letter == "") return false;
         if (this.grid[x][y].letter == letter) return true;
@@ -94,14 +94,18 @@ function generateEmptyGameObject()
     }
 
     //goes through many logic checks to ensure if any given space is valid
-    go.isLocationValid = function(x, y, letter, orientation)
+    go.isLocationValid = function(x, y, letter, orientation, boundsCheckOnly = false)
     {
+        //used to verify that there's a blank tile before and after a word.
+        //boundary check counts as a blank tile.
+        if (boundsCheckOnly && (this.isLocationOutOfBounds(x, y))) return true;
+
         //horizontal
         if (orientation == 0)
         {
             if (this.isLocationOutOfBounds(x, y)) return false;
             if (this.isLocationFilled(x,y)) return false;
-            if (this.isLocationOverlapping(x, y, orientation, letter) == false)
+            if (this.isLocationOverlapping(x, y, letter) == false)
             {
                 if (this.isLocationOccupied(x, y - 1)) return false;
                 if (this.isLocationOccupied(x, y + 1)) return false;  
@@ -111,7 +115,7 @@ function generateEmptyGameObject()
             //vertical
             if (this.isLocationOutOfBounds(x, y)) return false;
             if (this.isLocationFilled(x,y)) return false;
-            if (this.isLocationOverlapping(x, y, orientation, letter) == false)
+            if (this.isLocationOverlapping(x, y, letter) == false)
             {
                 if (this.isLocationOccupied(x - 1, y)) return false;
                 if (this.isLocationOccupied(x + 1, y)) return false;
@@ -198,12 +202,12 @@ function generateEmptyGameObject()
                 if (orientation == 0)
                 {
                     //horizontal
-                    if (this.isLocationValid(x + offset - 1, y,"!", orientation, false, false) == false) canPlaceWord = false;
-                    if (this.isLocationValid(x + offset + word.term.length, y,"!", orientation, false, false) == false) canPlaceWord = false;
+                    if (this.isLocationValid(x + offset - 1, y,"!", orientation, true) == false) canPlaceWord = false;
+                    if (this.isLocationValid(x + offset + word.term.length, y,"!", orientation, true) == false) canPlaceWord = false;
                 } else {
                     //vertical
-                    if (this.isLocationValid(x, y + offset - 1,"!", orientation, false, false) == false) canPlaceWord = false;
-                    if (this.isLocationValid(x, y + offset + word.term.length,"!", orientation, false, false) == false) canPlaceWord = false;
+                    if (this.isLocationValid(x, y + offset - 1,"!", orientation, true) == false) canPlaceWord = false;
+                    if (this.isLocationValid(x, y + offset + word.term.length,"!", orientation, true) == false) canPlaceWord = false;
                 }
 
                 //now loop through the letters
