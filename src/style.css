@@ -48,7 +48,7 @@ body { text-align: center;}
     top: 0; bottom: 0;
     position: absolute;
     text-align: center;
-    font-size: 1em;
+    font-size: 12px;
 }
 
 @media (max-width: 991px) and (orientation: portrait) {
