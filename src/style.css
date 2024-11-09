@@ -47,7 +47,7 @@ body { text-align: center;}
     top: 0; bottom: 0;
     position: absolute;
     text-align: center;
-    font-size: 12px;
+    font-size: 1em;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;

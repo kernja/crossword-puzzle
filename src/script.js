@@ -338,7 +338,7 @@ function renderPuzzleToScreen(go)
             } else {
                 //html = `<input type="textbox" class="square blank" tabindex="-1" data-x="${x}" data-y="${y}" data-latter="${ltr.letter}" data-horizontalterm="${ltr.horizontalTerm}" data-verticalterm="${ltr.verticalTerm}"><span class='number'></span></input>`;
                 //html = "<div class='square blank' tabindex='-1' data-x='" + x + "' data-y='" + y + "' data-letter='" + ltr.letter + "' data-horizontalterm='" + ltr.horizontalTerm + "' data-verticalterm='" + ltr.verticalTerm + "'><span class='number'></span><div class='letter'>" + ltr.letter +"</div></div>";
-                html = "<div class='square blank' tabindex='-1' data-x='" + x + "' data-y='" + y + "' data-letter='" + ltr.letter + "' data-horizontalterm='" + ltr.horizontalTerm + "' data-verticalterm='" + ltr.verticalTerm + "'><span class='number'></span><input type='text' class='letter' size='1' maxlength='1'>" + ltr.letter +"</input></div>";
+                html = "<div class='square blank' data-x='" + x + "' data-y='" + y + "' data-letter='" + ltr.letter + "' data-horizontalterm='" + ltr.horizontalTerm + "' data-verticalterm='" + ltr.verticalTerm + "'><span class='number'></span><input type='text' class='letter' size='1' maxlength='1' autoComplete='off' tabindex='-1'>" + ltr.letter +"</input></div>";
             }
 
             $(".crossword").append(html);
