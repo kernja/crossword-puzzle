@@ -54,30 +54,4 @@ body { text-align: center;}
     font-family: monospace;
 }
 
-@media (max-width: 991px) and (orientation: portrait) {
-    .crossword {
-        line-height: .95em;
-    }
-
-    .crossword .square
-    {
-        width: 1em;
-        height: 1em;
-        font-size: 5.9vw;
-        line-height: .95em;
-    }
-}
-
-@media (max-width: 991px) and (orientation: landscape) {
-    .crossword {
-        line-height: 1em;
-    }
-    .crossword .square
-    {
-        width: 1em;
-        height: 1em;
-        font-size: 4vh;
-        line-height: .95em;
-    }
-}
 
