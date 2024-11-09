@@ -43,7 +43,6 @@ function generateEmptyGameObject()
         placedWords: [], // words that have been placed
         playfieldSize: 15, //playfield size
         grid: [], // two dimensional array to store letter data
-        wordsAddedInOrder: [], //words added to the puzzle in order, as string values
     };
 
     //set runtime values based off of initial values
@@ -144,7 +143,6 @@ function generateEmptyGameObject()
     {
         //remove the word so it cannot be used again
         this.placedWords.push({x: x, y: y, term: word.term, definition: word.definition, orientation: orientation, number: 0});
-        this.wordsAddedInOrder.push(word.term);
         this.wordPool = this.wordPool.filter((x) => x.term != word.term);
         this.wordPool = this.wordPool.sort(() => .5 - Math.random());
         
@@ -338,7 +336,9 @@ function renderPuzzleToScreen(go)
             {
                 html = "<div class='square empty'>&nbsp;</div>";
             } else {
-                html = "<div class='square blank' tabindex='-1' data-x='" + x + "' data-y='" + y + "' data-letter='" + ltr.letter + "' data-horizontalterm='" + ltr.horizontalTerm + "' data-verticalterm='" + ltr.verticalTerm + "'><span class='number'></span><div class='letter'>" + ltr.letter +"</div>";
+                //html = `<input type="textbox" class="square blank" tabindex="-1" data-x="${x}" data-y="${y}" data-latter="${ltr.letter}" data-horizontalterm="${ltr.horizontalTerm}" data-verticalterm="${ltr.verticalTerm}"><span class='number'></span></input>`;
+                //html = "<div class='square blank' tabindex='-1' data-x='" + x + "' data-y='" + y + "' data-letter='" + ltr.letter + "' data-horizontalterm='" + ltr.horizontalTerm + "' data-verticalterm='" + ltr.verticalTerm + "'><span class='number'></span><div class='letter'>" + ltr.letter +"</div></div>";
+                html = "<div class='square blank' tabindex='-1' data-x='" + x + "' data-y='" + y + "' data-letter='" + ltr.letter + "' data-horizontalterm='" + ltr.horizontalTerm + "' data-verticalterm='" + ltr.verticalTerm + "'><span class='number'></span><input type='text' class='letter' size='1' maxlength='1'>" + ltr.letter +"</input></div>";
             }
 
             $(".crossword").append(html);
