@@ -47,13 +47,15 @@ body { text-align: center;}
     top: 0; bottom: 0;
     position: absolute;
     text-align: center;
-    font-size: 1em;
+    font-size: 1.1em;
+    font-weight: bold;
     margin: 0;
     padding: 0;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     font-family: monospace;
+    border-radius: 0;
 }
 
 
