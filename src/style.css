@@ -2,7 +2,6 @@ body { text-align: center;}
 .column-playfield {
     text-align: left;
     display: inline-block;
-    width: 40%;
 }
 .column-hints {
     text-align: left;
@@ -49,6 +48,10 @@ body { text-align: center;}
     position: absolute;
     text-align: center;
     font-size: 12px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font-family: monospace;
 }
 
 @media (max-width: 991px) and (orientation: portrait) {
