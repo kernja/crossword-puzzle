@@ -1,14 +1,11 @@
-const assert = require("node:assert/strict");
-const fixture = require("./fixtures/seed-1234-summary.json") as {
-  summary: ReturnType<typeof summarizePuzzle>;
-};
-
-const {
+import assert from "node:assert/strict";
+import fixture from "./fixtures/seed-1234-summary.json" with { type: "json" };
+import {
   createLegacyGameObject,
   createSeededRng,
   generateLegacyPuzzle,
   summarizePuzzle
-} = require("../src/legacy-generator.ts") as typeof import("../src/legacy-generator");
+} from "../src/legacy-generator.ts";
 
 type TestCase = {
   name: string;

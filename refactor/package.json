@@ -2,6 +2,7 @@
   "name": "crossword-puzzle-refactor",
   "private": true,
   "version": "0.1.0",
+  "type": "module",
   "description": "Phase 1 characterization harness for the crossword generator refactor.",
   "scripts": {
     "test": "node ./test/run-tests.ts"

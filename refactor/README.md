@@ -10,6 +10,7 @@ Phase 1 is focused on preserving current generator behavior before any UI or arc
 - deterministic randomness support added for tests
 - characterization tests added around the current placement behavior
 - fixture summary added for a seeded run
+- shared types and pure helper modules extracted from the legacy generator
 
 The original static app under `../src/` remains the source of truth for the current browser experience.
 

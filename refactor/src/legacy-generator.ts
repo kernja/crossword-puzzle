@@ -1,123 +1,19 @@
-type Orientation = 0 | 1;
+import { DEFAULT_WORDS } from "./default-words.ts";
+import { numberPlacedWords } from "./numbering.ts";
+import { createSeededRng, sortLikeLegacy } from "./random.ts";
+import { summarizePuzzle } from "./summary.ts";
+import type {
+  CreateLegacyGameObjectOptions,
+  GenerateLegacyPuzzleOptions,
+  GeneratedLegacyPuzzle,
+  GridCell,
+  LegacyGameObject,
+  Orientation,
+  PlacedWord,
+  WordEntry
+} from "./types.ts";
 
-type WordEntry = {
-  term: string;
-  definition: string;
-};
-
-type GridCell = {
-  letter: string;
-  horizontalTerm: string;
-  verticalTerm: string;
-};
-
-type PlacedWord = {
-  x: number;
-  y: number;
-  term: string;
-  definition: string;
-  orientation: Orientation;
-  number: number;
-};
-
-type LegacyGameObject = {
-  allAvailableWords: WordEntry[];
-  wordPool: WordEntry[];
-  placedWords: PlacedWord[];
-  playfieldSize: number;
-  grid: GridCell[][];
-  isLocationOutOfBounds(x: number, y: number): boolean;
-  isLocationOccupied(x: number, y: number, ignoreBounds?: boolean): boolean;
-  isLocationFilled(x: number, y: number): boolean;
-  isLocationOverlapping(x: number, y: number, letter?: string): boolean;
-  isLocationValid(x: number, y: number, letter: string, orientation: Orientation, boundsCheckOnly?: boolean): boolean;
-  setLetterAtLocation(x: number, y: number, word: WordEntry, letter: string, orientation: Orientation): void;
-  setWordAtLocation(x: number, y: number, word: WordEntry, orientation: Orientation): void;
-  testWordsAtLocation(x: number, y: number, letter: string, orientation: Orientation): void;
-  validatePuzzle(): boolean;
-};
-
-type CreateLegacyGameObjectOptions = {
-  playfieldSize?: number;
-  words?: WordEntry[];
-  rng?: () => number;
-};
-
-type GenerateLegacyPuzzleOptions = CreateLegacyGameObjectOptions;
-
-type GeneratedLegacyPuzzle = {
-  game: LegacyGameObject;
-  isValid: boolean;
-  numberedWords: PlacedWord[];
-  attempts: number;
-};
-
-type PuzzleSummary = {
-  size: number;
-  attempts: number;
-  isValid: boolean;
-  placedWordCount: number;
-  firstWord: PlacedWord | undefined;
-  words: Array<{
-    term: string;
-    x: number;
-    y: number;
-    orientation: Orientation;
-    number: number;
-  }>;
-};
-
-const DEFAULT_WORDS: WordEntry[] = [
-  { term: "corgi", definition: "Dog breed loved by the Royal Family." },
-  { term: "apple", definition: "Fruit given to teachers by school children." },
-  { term: "hamburger", definition: "Sandwich served at McDonald's." },
-  { term: "minivan", definition: "Vehicle associated with families that have kids." },
-  { term: "coffee", definition: "Warm beverage that helps tired people function." },
-  { term: "yogurt", definition: "Cultured dairy product served at breakfast." },
-  { term: "firefighter", definition: "Professional that rescues people from burning buildings." },
-  { term: "banana", definition: "Fruit associated with monkeys and gorillas." },
-  { term: "pillow", definition: "Something you rest your head on at night." },
-  { term: "laptop", definition: "A portable computer." },
-  { term: "television", definition: "Used to watch streaming video services while sitting on a couch." },
-  { term: "mechanic", definition: "Profssional that fixes broken vehicles." },
-  { term: "headphones", definition: "Used for listening to music." },
-  { term: "sunglasses", definition: "Wear these to protect your vision." },
-  { term: "sundress", definition: "Light outfit popular with women in the summer." },
-  { term: "icecream", definition: "Frozen dessert popular with people during the summertime." },
-  { term: "lawnmower", definition: "Used to cut grass." },
-  { term: "widow", definition: "A woman whose husband has died." },
-  { term: "ant", definition: "Small insect that lives in a colony." },
-  { term: "cat", definition: "Raining ___ and dogs." },
-  { term: "homework", definition: "Assigned by teachers for students to do at home." },
-  { term: "bat", definition: "Sport equipment or animal that flies in the air." },
-  { term: "raisins", definition: "Dried grapes." },
-  { term: "orange", definition: "Citrus fruit." },
-  { term: "battery", definition: "Stores electricity." },
-  { term: "water", definition: "Hydrates plants." },
-  { term: "barn", definition: "Holds livestock and is painted red." },
-  { term: "elephant", definition: "Large animal with a trunk." },
-  { term: "forest", definition: "Area with lots of trees." },
-  { term: "river", definition: "Flowing with water." },
-  { term: "loofa", definition: "Bathing apparatus." },
-  { term: "mouse", definition: "Animal that squeaks." },
-  { term: "foul", definition: "Violation; wrongdoing." },
-  { term: "error", definition: "Unexpected negative event in computing." }
-];
-
-function sortLikeLegacy(items: WordEntry[], rng: () => number): WordEntry[] {
-  return [...items].sort(() => 0.5 - rng());
-}
-
-function createSeededRng(seed: number): () => number {
-  let state = seed >>> 0;
-
-  return function seededRandom() {
-    state = (1664525 * state + 1013904223) >>> 0;
-    return state / 0x100000000;
-  };
-}
-
-function createLegacyGameObject(options: CreateLegacyGameObjectOptions = {}): LegacyGameObject {
+export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = {}): LegacyGameObject {
   const playfieldSize = options.playfieldSize ?? 15;
   const allAvailableWords = [...(options.words ?? DEFAULT_WORDS)];
   const rng = options.rng ?? Math.random;
@@ -314,26 +210,7 @@ function createLegacyGameObject(options: CreateLegacyGameObjectOptions = {}): Le
   return go;
 }
 
-function numberPlacedWords(go: LegacyGameObject): PlacedWord[] {
-  const placedWords = [...go.placedWords].sort((a, b) => a.y - b.y || a.x - b.x);
-  let wordCount = 0;
-
-  for (let y = 0; y < go.playfieldSize; y += 1) {
-    for (let x = 0; x < go.playfieldSize; x += 1) {
-      const filteredWords = placedWords.filter((word) => word.x === x && word.y === y);
-      if (filteredWords.length > 0) {
-        wordCount += 1;
-        filteredWords.forEach((word) => {
-          word.number = wordCount;
-        });
-      }
-    }
-  }
-
-  return placedWords;
-}
-
-function generateLegacyPuzzle(options: GenerateLegacyPuzzleOptions = {}): GeneratedLegacyPuzzle {
+export function generateLegacyPuzzle(options: GenerateLegacyPuzzleOptions = {}): GeneratedLegacyPuzzle {
   let previousWordCount = 0;
   let currentWordCount = 0;
   let attempts = 0;
@@ -360,28 +237,4 @@ function generateLegacyPuzzle(options: GenerateLegacyPuzzleOptions = {}): Genera
   };
 }
 
-function summarizePuzzle(result: GeneratedLegacyPuzzle): PuzzleSummary {
-  return {
-    size: result.game.playfieldSize,
-    attempts: result.attempts,
-    isValid: result.isValid,
-    placedWordCount: result.game.placedWords.length,
-    firstWord: result.game.placedWords[0],
-    words: result.numberedWords.map((word) => ({
-      term: word.term,
-      x: word.x,
-      y: word.y,
-      orientation: word.orientation,
-      number: word.number
-    }))
-  };
-}
-
-module.exports = {
-  DEFAULT_WORDS,
-  createLegacyGameObject,
-  createSeededRng,
-  generateLegacyPuzzle,
-  numberPlacedWords,
-  summarizePuzzle
-};
+export { DEFAULT_WORDS, createSeededRng, numberPlacedWords, summarizePuzzle };
