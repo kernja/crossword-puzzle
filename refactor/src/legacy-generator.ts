@@ -14,6 +14,7 @@ import {
 } from "./placement.ts";
 import { createSeededRng, sortLikeLegacy } from "./random.ts";
 import { summarizePuzzle } from "./summary.ts";
+import { setWordAtLocation as placeWordAtLocation, testWordsAtLocation as expandFromLocation } from "./word-placement.ts";
 import type {
   CreateLegacyGameObjectOptions,
   GenerateLegacyPuzzleOptions,
@@ -29,6 +30,7 @@ export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = 
   const allAvailableWords = [...(options.words ?? DEFAULT_WORDS)];
   const rng = options.rng ?? Math.random;
 
+  // Keep the single mutable game object shape so the legacy flow stays easy to compare to src/script.js.
   const go = {
     allAvailableWords,
     wordPool: [] as WordEntry[],
@@ -77,27 +79,7 @@ export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = 
   };
 
   go.setWordAtLocation = function setWordAtLocation(x: number, y: number, word: WordEntry, orientation: Orientation): void {
-    this.placedWords.push({ x, y, term: word.term, definition: word.definition, orientation, number: 0 });
-    this.wordPool = sortLikeLegacy(
-      this.wordPool.filter((candidate) => candidate.term !== word.term),
-      rng
-    );
-
-    for (let i = 0; i < word.term.length; i += 1) {
-      if (orientation === 0) {
-        this.setLetterAtLocation(x + i, y, word, word.term[i], orientation);
-      } else {
-        this.setLetterAtLocation(x, y + i, word, word.term[i], orientation);
-      }
-    }
-
-    for (let i = 0; i < word.term.length; i += 1) {
-      if (orientation === 0) {
-        if (this.isLocationFilled(x + i, y) === false) this.testWordsAtLocation(x + i, y, word.term[i], 1);
-      } else if (this.isLocationFilled(x, y + i) === false) {
-        this.testWordsAtLocation(x, y + i, word.term[i], 0);
-      }
-    }
+    placeWordAtLocation(this, x, y, word, orientation, rng);
   };
 
   go.testWordsAtLocation = function testWordsAtLocation(
@@ -106,52 +88,7 @@ export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = 
     letter: string,
     orientation: Orientation
   ): void {
-    const potentialWords = this.wordPool.filter((word) => word.term.indexOf(letter) >= 0);
-    if (potentialWords.length === 0) return;
-
-    let placedWord = false;
-
-    for (let wi = 0; wi < potentialWords.length && placedWord === false; wi += 1) {
-      const word = potentialWords[wi];
-      let li = word.term.indexOf(letter);
-
-      while (li !== -1 && placedWord === false) {
-        const offset = 0 - li;
-        let canPlaceWord = true;
-
-        if (orientation === 0) {
-          if (this.isLocationValid(x + offset - 1, y, "!", orientation, true) === false) canPlaceWord = false;
-          if (this.isLocationValid(x + offset + word.term.length, y, "!", orientation, true) === false) {
-            canPlaceWord = false;
-          }
-        } else {
-          if (this.isLocationValid(x, y + offset - 1, "!", orientation, true) === false) canPlaceWord = false;
-          if (this.isLocationValid(x, y + offset + word.term.length, "!", orientation, true) === false) {
-            canPlaceWord = false;
-          }
-        }
-
-        for (let i = 0; i < word.term.length && canPlaceWord === true; i += 1) {
-          if (orientation === 0) {
-            if (this.isLocationValid(x + offset + i, y, word.term[i], orientation) === false) canPlaceWord = false;
-          } else if (this.isLocationValid(x, y + offset + i, word.term[i], orientation) === false) {
-            canPlaceWord = false;
-          }
-        }
-
-        if (canPlaceWord) {
-          if (orientation === 0) {
-            this.setWordAtLocation(x + offset, y, word, orientation);
-          } else {
-            this.setWordAtLocation(x, y + offset, word, orientation);
-          }
-
-          placedWord = true;
-        }
-
-        li = word.term.indexOf(letter, li + 1);
-      }
-    }
+    expandFromLocation(this, x, y, letter, orientation);
   };
 
   go.validatePuzzle = function validatePuzzle(): boolean {
@@ -168,11 +105,13 @@ export function generateLegacyPuzzle(options: GenerateLegacyPuzzleOptions = {}):
   let go!: LegacyGameObject;
 
   do {
+    // Each attempt starts from a fresh shuffled game object, matching the current retry strategy.
     go = createLegacyGameObject(options);
 
     const initialWord = go.wordPool[0];
     const initialX = Math.floor((go.playfieldSize - initialWord.term.length) * 0.5);
     const initialY = Math.floor((go.playfieldSize - 1) * 0.5);
+    // Seed the first word near the center to maximize follow-up placement opportunities.
     go.setWordAtLocation(initialX, initialY, initialWord, 0);
 
     if (previousWordCount < currentWordCount && attempts < 25) previousWordCount = currentWordCount;
