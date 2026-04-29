@@ -1,0 +1,153 @@
+{
+  "seed": 1234,
+  "notes": "Characterization fixture for the Phase 1 legacy generator harness. Keep this aligned with the seeded test when behavior changes intentionally.",
+  "summary": {
+    "size": 15,
+    "attempts": 52,
+    "isValid": true,
+    "placedWordCount": 19,
+    "firstWord": {
+      "x": 3,
+      "y": 7,
+      "term": "lawnmower",
+      "definition": "Used to cut grass.",
+      "orientation": 0,
+      "number": 9
+    },
+    "words": [
+      {
+        "term": "mechanic",
+        "x": 1,
+        "y": 0,
+        "orientation": 1,
+        "number": 1
+      },
+      {
+        "term": "error",
+        "x": 1,
+        "y": 1,
+        "orientation": 0,
+        "number": 2
+      },
+      {
+        "term": "corgi",
+        "x": 7,
+        "y": 1,
+        "orientation": 1,
+        "number": 3
+      },
+      {
+        "term": "coffee",
+        "x": 7,
+        "y": 1,
+        "orientation": 0,
+        "number": 3
+      },
+      {
+        "term": "homework",
+        "x": 1,
+        "y": 3,
+        "orientation": 0,
+        "number": 4
+      },
+      {
+        "term": "widow",
+        "x": 5,
+        "y": 3,
+        "orientation": 1,
+        "number": 5
+      },
+      {
+        "term": "bat",
+        "x": 13,
+        "y": 4,
+        "orientation": 1,
+        "number": 6
+      },
+      {
+        "term": "icecream",
+        "x": 7,
+        "y": 5,
+        "orientation": 0,
+        "number": 7
+      },
+      {
+        "term": "elephant",
+        "x": 3,
+        "y": 6,
+        "orientation": 1,
+        "number": 8
+      },
+      {
+        "term": "lawnmower",
+        "x": 3,
+        "y": 7,
+        "orientation": 0,
+        "number": 9
+      },
+      {
+        "term": "minivan",
+        "x": 13,
+        "y": 8,
+        "orientation": 1,
+        "number": 10
+      },
+      {
+        "term": "apple",
+        "x": 2,
+        "y": 9,
+        "orientation": 0,
+        "number": 11
+      },
+      {
+        "term": "laptop",
+        "x": 5,
+        "y": 9,
+        "orientation": 1,
+        "number": 12
+      },
+      {
+        "term": "foul",
+        "x": 9,
+        "y": 10,
+        "orientation": 1,
+        "number": 13
+      },
+      {
+        "term": "ant",
+        "x": 12,
+        "y": 10,
+        "orientation": 0,
+        "number": 14
+      },
+      {
+        "term": "cat",
+        "x": 1,
+        "y": 11,
+        "orientation": 1,
+        "number": 15
+      },
+      {
+        "term": "pillow",
+        "x": 5,
+        "y": 11,
+        "orientation": 0,
+        "number": 16
+      },
+      {
+        "term": "barn",
+        "x": 0,
+        "y": 12,
+        "orientation": 0,
+        "number": 17
+      },
+      {
+        "term": "loofa",
+        "x": 9,
+        "y": 13,
+        "orientation": 0,
+        "number": 18
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "crossword-puzzle-refactor",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Phase 1 characterization harness for the crossword generator refactor.",
+  "scripts": {
+    "test": "node ./test/run-tests.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
