@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fixture from "./fixtures/seed-1234-summary.json" with { type: "json" };
+import { generateCrossword, getCell, getWordAtCell, validateGrid } from "../src/core.ts";
 import {
   createLegacyGameObject,
   createSeededRng,
@@ -79,6 +80,30 @@ test("seeded puzzle summary stays stable for regression tracking", () => {
   const summary = summarizePuzzle(generateLegacyPuzzle({ rng: createSeededRng(1234) }));
 
   assert.deepEqual(summary, fixture.summary);
+});
+
+test("core generateCrossword preserves the legacy seeded puzzle behavior", () => {
+  const summary = summarizePuzzle(generateCrossword(undefined, { rng: createSeededRng(1234) }));
+
+  assert.deepEqual(summary, fixture.summary);
+});
+
+test("core helpers can read cells and words without direct legacy object access", () => {
+  const puzzle = generateCrossword(undefined, { rng: createSeededRng(1234) });
+  const cell = getCell(puzzle, 3, 7);
+  const acrossWord = getWordAtCell(puzzle, 3, 7, 0);
+  const downWord = getWordAtCell(puzzle, 3, 7, 1);
+
+  assert.notEqual(cell, null);
+  assert.equal(cell?.letter, "l");
+  assert.equal(acrossWord?.term, "lawnmower");
+  assert.equal(downWord?.term, "elephant");
+});
+
+test("core validateGrid matches the legacy validation result", () => {
+  const puzzle = generateCrossword(undefined, { rng: createSeededRng(1234) });
+
+  assert.deepEqual(validateGrid(puzzle), { isValid: true });
 });
 
 let failed = 0;

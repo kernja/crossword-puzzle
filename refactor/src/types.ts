@@ -52,6 +52,14 @@ export type GeneratedLegacyPuzzle = {
   attempts: number;
 };
 
+// This is the bridge type for the future core API.
+// For now it intentionally wraps the locked legacy shape rather than inventing a new model too early.
+export type CrosswordPuzzle = GeneratedLegacyPuzzle;
+
+export type ValidationResult = {
+  isValid: boolean;
+};
+
 export type PuzzleSummary = {
   size: number;
   attempts: number;
