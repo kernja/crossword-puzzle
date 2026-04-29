@@ -12,6 +12,7 @@ Phase 1 is focused on preserving current generator behavior before any UI or arc
 - fixture summary added for a seeded run
 - shared types and pure helper modules extracted from the legacy generator
 - a small core-style API layer now sits on top of the locked legacy generator
+- a read-only adapter now exposes a cleaner puzzle model for future UI work
 
 The original static app under `../src/` remains the source of truth for the current browser experience.
 

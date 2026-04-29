@@ -7,6 +7,7 @@ import {
   generateLegacyPuzzle,
   summarizePuzzle
 } from "../src/legacy-generator.ts";
+import { toCorePuzzle } from "../src/puzzle-adapter.ts";
 
 type TestCase = {
   name: string;
@@ -104,6 +105,21 @@ test("core validateGrid matches the legacy validation result", () => {
   const puzzle = generateCrossword(undefined, { rng: createSeededRng(1234) });
 
   assert.deepEqual(validateGrid(puzzle), { isValid: true });
+});
+
+test("puzzle adapter exposes a UI-friendly core puzzle shape", () => {
+  const puzzle = generateCrossword(undefined, { rng: createSeededRng(1234) });
+  const corePuzzle = toCorePuzzle(puzzle);
+  const lawnmower = corePuzzle.words.find((word) => word.term === "lawnmower");
+
+  assert.equal(corePuzzle.size, 15);
+  assert.equal(corePuzzle.isValid, true);
+  assert.equal(corePuzzle.cells[3][7].solution, "l");
+  assert.equal(corePuzzle.cells[3][7].isBlock, false);
+  assert.equal(corePuzzle.cells[14][14].solution, "");
+  assert.equal(corePuzzle.cells[14][14].isBlock, true);
+  assert.notEqual(lawnmower, undefined);
+  assert.equal(lawnmower?.direction, "across");
 });
 
 let failed = 0;

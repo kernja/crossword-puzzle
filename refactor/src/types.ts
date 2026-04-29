@@ -60,6 +60,32 @@ export type ValidationResult = {
   isValid: boolean;
 };
 
+export type CoreCell = {
+  x: number;
+  y: number;
+  solution: string;
+  entry: string;
+  isBlock: boolean;
+  acrossTerm: string | null;
+  downTerm: string | null;
+};
+
+export type CorePlacedWord = {
+  term: string;
+  definition: string;
+  x: number;
+  y: number;
+  direction: "across" | "down";
+  number: number;
+};
+
+export type CorePuzzle = {
+  size: number;
+  cells: CoreCell[][];
+  words: CorePlacedWord[];
+  isValid: boolean;
+};
+
 export type PuzzleSummary = {
   size: number;
   attempts: number;
