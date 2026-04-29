@@ -1,12 +1,23 @@
 import { DEFAULT_WORDS } from "./default-words.ts";
+import {
+  createEmptyGrid,
+  isLocationFilled as checkLocationFilled,
+  isLocationOccupied as checkLocationOccupied,
+  isLocationOutOfBounds as checkLocationOutOfBounds,
+  isLocationOverlapping as checkLocationOverlapping
+} from "./grid.ts";
 import { numberPlacedWords } from "./numbering.ts";
+import {
+  isLocationValid as checkLocationValid,
+  setLetterAtLocation as writeLetterAtLocation,
+  validatePuzzle as validateLegacyPuzzle
+} from "./placement.ts";
 import { createSeededRng, sortLikeLegacy } from "./random.ts";
 import { summarizePuzzle } from "./summary.ts";
 import type {
   CreateLegacyGameObjectOptions,
   GenerateLegacyPuzzleOptions,
   GeneratedLegacyPuzzle,
-  GridCell,
   LegacyGameObject,
   Orientation,
   PlacedWord,
@@ -26,47 +37,23 @@ export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = 
     grid: [] as GridCell[][]
   } as LegacyGameObject;
 
-  go.grid = Array.from({ length: go.playfieldSize }, () =>
-    Array(go.playfieldSize)
-      .fill(null)
-      .map(
-        (): GridCell => ({
-          letter: "",
-          horizontalTerm: "",
-          verticalTerm: ""
-        })
-      )
-  );
+  go.grid = createEmptyGrid(go.playfieldSize);
   go.wordPool = sortLikeLegacy(go.allAvailableWords, rng).filter((word) => word.term.length < go.playfieldSize);
 
   go.isLocationOutOfBounds = function isLocationOutOfBounds(x: number, y: number): boolean {
-    if (x < 0) return true;
-    if (x >= this.playfieldSize) return true;
-    if (y < 0) return true;
-    if (y >= this.playfieldSize) return true;
-
-    return false;
+    return checkLocationOutOfBounds(this, x, y);
   };
 
   go.isLocationOccupied = function isLocationOccupied(x: number, y: number, ignoreBounds = false): boolean {
-    if (this.isLocationOutOfBounds(x, y) && ignoreBounds === true) return false;
-    if (this.isLocationOutOfBounds(x, y)) return true;
-    if (this.grid[x][y].letter === "") return false;
-
-    return true;
+    return checkLocationOccupied(this, x, y, ignoreBounds);
   };
 
   go.isLocationFilled = function isLocationFilled(x: number, y: number): boolean {
-    if (this.isLocationOutOfBounds(x, y)) return true;
-
-    return this.grid[x][y].horizontalTerm !== "" && this.grid[x][y].verticalTerm !== "";
+    return checkLocationFilled(this, x, y);
   };
 
   go.isLocationOverlapping = function isLocationOverlapping(x: number, y: number, letter = ""): boolean {
-    if (this.grid[x][y].letter === "") return false;
-    if (this.grid[x][y].letter === letter) return true;
-
-    return false;
+    return checkLocationOverlapping(this, x, y, letter);
   };
 
   go.isLocationValid = function isLocationValid(
@@ -76,27 +63,7 @@ export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = 
     orientation: Orientation,
     boundsCheckOnly = false
   ): boolean {
-    if (boundsCheckOnly && this.isLocationOutOfBounds(x, y)) return true;
-
-    if (orientation === 0) {
-      if (this.isLocationOutOfBounds(x, y)) return false;
-      if (this.isLocationFilled(x, y)) return false;
-      if (this.isLocationOverlapping(x, y, letter) === false) {
-        if (this.isLocationOccupied(x, y - 1)) return false;
-        if (this.isLocationOccupied(x, y + 1)) return false;
-        if (this.isLocationOccupied(x, y)) return false;
-      }
-    } else {
-      if (this.isLocationOutOfBounds(x, y)) return false;
-      if (this.isLocationFilled(x, y)) return false;
-      if (this.isLocationOverlapping(x, y, letter) === false) {
-        if (this.isLocationOccupied(x - 1, y)) return false;
-        if (this.isLocationOccupied(x + 1, y)) return false;
-        if (this.isLocationOccupied(x, y)) return false;
-      }
-    }
-
-    return true;
+    return checkLocationValid(this, x, y, letter, orientation, boundsCheckOnly);
   };
 
   go.setLetterAtLocation = function setLetterAtLocation(
@@ -106,12 +73,7 @@ export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = 
     letter: string,
     orientation: Orientation
   ): void {
-    this.grid[x][y].letter = letter;
-    if (orientation === 0) {
-      this.grid[x][y].horizontalTerm = word.term;
-    } else {
-      this.grid[x][y].verticalTerm = word.term;
-    }
+    writeLetterAtLocation(this, x, y, word, letter, orientation);
   };
 
   go.setWordAtLocation = function setWordAtLocation(x: number, y: number, word: WordEntry, orientation: Orientation): void {
@@ -193,18 +155,7 @@ export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = 
   };
 
   go.validatePuzzle = function validatePuzzle(): boolean {
-    let isValidated = true;
-    this.placedWords.forEach((item) => {
-      if (item.orientation === 0) {
-        if (go.isLocationOccupied(item.x - 1, item.y, true) || go.isLocationOccupied(item.x + item.term.length, item.y, true)) {
-          isValidated = false;
-        }
-      } else if (go.isLocationOccupied(item.x, item.y - 1, true) || go.isLocationOccupied(item.x, item.y + item.term.length, true)) {
-        isValidated = false;
-      }
-    });
-
-    return isValidated;
+    return validateLegacyPuzzle(this);
   };
 
   return go;
