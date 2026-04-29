@@ -1,4 +1,5 @@
 import { DEFAULT_WORDS } from "./default-words.ts";
+import { runLegacyGenerationLoop } from "./generation-flow.ts";
 import {
   createEmptyGrid,
   isLocationFilled as checkLocationFilled,
@@ -19,6 +20,7 @@ import type {
   CreateLegacyGameObjectOptions,
   GenerateLegacyPuzzleOptions,
   GeneratedLegacyPuzzle,
+  GridCell,
   LegacyGameObject,
   Orientation,
   PlacedWord,
@@ -40,6 +42,7 @@ export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = 
   } as LegacyGameObject;
 
   go.grid = createEmptyGrid(go.playfieldSize);
+  // Filter long words the same way as the legacy implementation before any placement begins.
   go.wordPool = sortLikeLegacy(go.allAvailableWords, rng).filter((word) => word.term.length < go.playfieldSize);
 
   go.isLocationOutOfBounds = function isLocationOutOfBounds(x: number, y: number): boolean {
@@ -99,30 +102,12 @@ export function createLegacyGameObject(options: CreateLegacyGameObjectOptions = 
 }
 
 export function generateLegacyPuzzle(options: GenerateLegacyPuzzleOptions = {}): GeneratedLegacyPuzzle {
-  let previousWordCount = 0;
-  let currentWordCount = 0;
-  let attempts = 0;
-  let go!: LegacyGameObject;
-
-  do {
-    // Each attempt starts from a fresh shuffled game object, matching the current retry strategy.
-    go = createLegacyGameObject(options);
-
-    const initialWord = go.wordPool[0];
-    const initialX = Math.floor((go.playfieldSize - initialWord.term.length) * 0.5);
-    const initialY = Math.floor((go.playfieldSize - 1) * 0.5);
-    // Seed the first word near the center to maximize follow-up placement opportunities.
-    go.setWordAtLocation(initialX, initialY, initialWord, 0);
-
-    if (previousWordCount < currentWordCount && attempts < 25) previousWordCount = currentWordCount;
-    currentWordCount = go.placedWords.length;
-    attempts += 1;
-  } while (currentWordCount < previousWordCount || attempts < 25);
+  const { attempts, game } = runLegacyGenerationLoop(createLegacyGameObject, options);
 
   return {
-    game: go,
-    isValid: go.validatePuzzle(),
-    numberedWords: numberPlacedWords(go),
+    game,
+    isValid: game.validatePuzzle(),
+    numberedWords: numberPlacedWords(game),
     attempts
   };
 }
