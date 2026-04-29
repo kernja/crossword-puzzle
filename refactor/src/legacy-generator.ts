@@ -1,4 +1,73 @@
-const DEFAULT_WORDS = [
+type Orientation = 0 | 1;
+
+type WordEntry = {
+  term: string;
+  definition: string;
+};
+
+type GridCell = {
+  letter: string;
+  horizontalTerm: string;
+  verticalTerm: string;
+};
+
+type PlacedWord = {
+  x: number;
+  y: number;
+  term: string;
+  definition: string;
+  orientation: Orientation;
+  number: number;
+};
+
+type LegacyGameObject = {
+  allAvailableWords: WordEntry[];
+  wordPool: WordEntry[];
+  placedWords: PlacedWord[];
+  playfieldSize: number;
+  grid: GridCell[][];
+  isLocationOutOfBounds(x: number, y: number): boolean;
+  isLocationOccupied(x: number, y: number, ignoreBounds?: boolean): boolean;
+  isLocationFilled(x: number, y: number): boolean;
+  isLocationOverlapping(x: number, y: number, letter?: string): boolean;
+  isLocationValid(x: number, y: number, letter: string, orientation: Orientation, boundsCheckOnly?: boolean): boolean;
+  setLetterAtLocation(x: number, y: number, word: WordEntry, letter: string, orientation: Orientation): void;
+  setWordAtLocation(x: number, y: number, word: WordEntry, orientation: Orientation): void;
+  testWordsAtLocation(x: number, y: number, letter: string, orientation: Orientation): void;
+  validatePuzzle(): boolean;
+};
+
+type CreateLegacyGameObjectOptions = {
+  playfieldSize?: number;
+  words?: WordEntry[];
+  rng?: () => number;
+};
+
+type GenerateLegacyPuzzleOptions = CreateLegacyGameObjectOptions;
+
+type GeneratedLegacyPuzzle = {
+  game: LegacyGameObject;
+  isValid: boolean;
+  numberedWords: PlacedWord[];
+  attempts: number;
+};
+
+type PuzzleSummary = {
+  size: number;
+  attempts: number;
+  isValid: boolean;
+  placedWordCount: number;
+  firstWord: PlacedWord | undefined;
+  words: Array<{
+    term: string;
+    x: number;
+    y: number;
+    orientation: Orientation;
+    number: number;
+  }>;
+};
+
+const DEFAULT_WORDS: WordEntry[] = [
   { term: "corgi", definition: "Dog breed loved by the Royal Family." },
   { term: "apple", definition: "Fruit given to teachers by school children." },
   { term: "hamburger", definition: "Sandwich served at McDonald's." },
@@ -35,11 +104,11 @@ const DEFAULT_WORDS = [
   { term: "error", definition: "Unexpected negative event in computing." }
 ];
 
-function sortLikeLegacy(items, rng) {
+function sortLikeLegacy(items: WordEntry[], rng: () => number): WordEntry[] {
   return [...items].sort(() => 0.5 - rng());
 }
 
-function createSeededRng(seed) {
+function createSeededRng(seed: number): () => number {
   let state = seed >>> 0;
 
   return function seededRandom() {
@@ -48,27 +117,33 @@ function createSeededRng(seed) {
   };
 }
 
-function createLegacyGameObject(options = {}) {
+function createLegacyGameObject(options: CreateLegacyGameObjectOptions = {}): LegacyGameObject {
   const playfieldSize = options.playfieldSize ?? 15;
   const allAvailableWords = [...(options.words ?? DEFAULT_WORDS)];
   const rng = options.rng ?? Math.random;
 
   const go = {
     allAvailableWords,
-    wordPool: [],
-    placedWords: [],
+    wordPool: [] as WordEntry[],
+    placedWords: [] as PlacedWord[],
     playfieldSize,
-    grid: []
-  };
+    grid: [] as GridCell[][]
+  } as LegacyGameObject;
 
   go.grid = Array.from({ length: go.playfieldSize }, () =>
     Array(go.playfieldSize)
       .fill(null)
-      .map(() => ({ letter: "", horizontalTerm: "", verticalTerm: "" }))
+      .map(
+        (): GridCell => ({
+          letter: "",
+          horizontalTerm: "",
+          verticalTerm: ""
+        })
+      )
   );
   go.wordPool = sortLikeLegacy(go.allAvailableWords, rng).filter((word) => word.term.length < go.playfieldSize);
 
-  go.isLocationOutOfBounds = function isLocationOutOfBounds(x, y) {
+  go.isLocationOutOfBounds = function isLocationOutOfBounds(x: number, y: number): boolean {
     if (x < 0) return true;
     if (x >= this.playfieldSize) return true;
     if (y < 0) return true;
@@ -77,7 +152,7 @@ function createLegacyGameObject(options = {}) {
     return false;
   };
 
-  go.isLocationOccupied = function isLocationOccupied(x, y, ignoreBounds = false) {
+  go.isLocationOccupied = function isLocationOccupied(x: number, y: number, ignoreBounds = false): boolean {
     if (this.isLocationOutOfBounds(x, y) && ignoreBounds === true) return false;
     if (this.isLocationOutOfBounds(x, y)) return true;
     if (this.grid[x][y].letter === "") return false;
@@ -85,20 +160,26 @@ function createLegacyGameObject(options = {}) {
     return true;
   };
 
-  go.isLocationFilled = function isLocationFilled(x, y) {
+  go.isLocationFilled = function isLocationFilled(x: number, y: number): boolean {
     if (this.isLocationOutOfBounds(x, y)) return true;
 
     return this.grid[x][y].horizontalTerm !== "" && this.grid[x][y].verticalTerm !== "";
   };
 
-  go.isLocationOverlapping = function isLocationOverlapping(x, y, letter = "") {
+  go.isLocationOverlapping = function isLocationOverlapping(x: number, y: number, letter = ""): boolean {
     if (this.grid[x][y].letter === "") return false;
     if (this.grid[x][y].letter === letter) return true;
 
     return false;
   };
 
-  go.isLocationValid = function isLocationValid(x, y, letter, orientation, boundsCheckOnly = false) {
+  go.isLocationValid = function isLocationValid(
+    x: number,
+    y: number,
+    letter: string,
+    orientation: Orientation,
+    boundsCheckOnly = false
+  ): boolean {
     if (boundsCheckOnly && this.isLocationOutOfBounds(x, y)) return true;
 
     if (orientation === 0) {
@@ -122,7 +203,13 @@ function createLegacyGameObject(options = {}) {
     return true;
   };
 
-  go.setLetterAtLocation = function setLetterAtLocation(x, y, word, letter, orientation) {
+  go.setLetterAtLocation = function setLetterAtLocation(
+    x: number,
+    y: number,
+    word: WordEntry,
+    letter: string,
+    orientation: Orientation
+  ): void {
     this.grid[x][y].letter = letter;
     if (orientation === 0) {
       this.grid[x][y].horizontalTerm = word.term;
@@ -131,7 +218,7 @@ function createLegacyGameObject(options = {}) {
     }
   };
 
-  go.setWordAtLocation = function setWordAtLocation(x, y, word, orientation) {
+  go.setWordAtLocation = function setWordAtLocation(x: number, y: number, word: WordEntry, orientation: Orientation): void {
     this.placedWords.push({ x, y, term: word.term, definition: word.definition, orientation, number: 0 });
     this.wordPool = sortLikeLegacy(
       this.wordPool.filter((candidate) => candidate.term !== word.term),
@@ -155,7 +242,12 @@ function createLegacyGameObject(options = {}) {
     }
   };
 
-  go.testWordsAtLocation = function testWordsAtLocation(x, y, letter, orientation) {
+  go.testWordsAtLocation = function testWordsAtLocation(
+    x: number,
+    y: number,
+    letter: string,
+    orientation: Orientation
+  ): void {
     const potentialWords = this.wordPool.filter((word) => word.term.indexOf(letter) >= 0);
     if (potentialWords.length === 0) return;
 
@@ -204,7 +296,7 @@ function createLegacyGameObject(options = {}) {
     }
   };
 
-  go.validatePuzzle = function validatePuzzle() {
+  go.validatePuzzle = function validatePuzzle(): boolean {
     let isValidated = true;
     this.placedWords.forEach((item) => {
       if (item.orientation === 0) {
@@ -222,7 +314,7 @@ function createLegacyGameObject(options = {}) {
   return go;
 }
 
-function numberPlacedWords(go) {
+function numberPlacedWords(go: LegacyGameObject): PlacedWord[] {
   const placedWords = [...go.placedWords].sort((a, b) => a.y - b.y || a.x - b.x);
   let wordCount = 0;
 
@@ -241,11 +333,11 @@ function numberPlacedWords(go) {
   return placedWords;
 }
 
-function generateLegacyPuzzle(options = {}) {
+function generateLegacyPuzzle(options: GenerateLegacyPuzzleOptions = {}): GeneratedLegacyPuzzle {
   let previousWordCount = 0;
   let currentWordCount = 0;
   let attempts = 0;
-  let go;
+  let go!: LegacyGameObject;
 
   do {
     go = createLegacyGameObject(options);
@@ -268,7 +360,7 @@ function generateLegacyPuzzle(options = {}) {
   };
 }
 
-function summarizePuzzle(result) {
+function summarizePuzzle(result: GeneratedLegacyPuzzle): PuzzleSummary {
   return {
     size: result.game.playfieldSize,
     attempts: result.attempts,

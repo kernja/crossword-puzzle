@@ -1,16 +1,23 @@
 const assert = require("node:assert/strict");
-const fixture = require("./fixtures/seed-1234-summary.json");
+const fixture = require("./fixtures/seed-1234-summary.json") as {
+  summary: ReturnType<typeof summarizePuzzle>;
+};
 
 const {
   createLegacyGameObject,
   createSeededRng,
   generateLegacyPuzzle,
   summarizePuzzle
-} = require("../src/legacy-generator");
+} = require("../src/legacy-generator.ts") as typeof import("../src/legacy-generator");
 
-const tests = [];
+type TestCase = {
+  name: string;
+  fn: () => void;
+};
 
-function test(name, fn) {
+const tests: TestCase[] = [];
+
+function test(name: string, fn: () => void): void {
   tests.push({ name, fn });
 }
 
